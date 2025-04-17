@@ -1,0 +1,181 @@
+[project]
+name = "{{ project_name }}"
+version = "0.1"
+description = "{{ project_description }}"
+authors = [{ name = "{{ author }}", email = "{{ email }}" }]
+readme = "README.md"
+keywords = ['python']
+requires-python = "~={{ python_version }}"
+
+[dependency-groups]
+dev = [
+    {% if pytest %}
+    "pytest>=8.3.4",
+    {% endif %}
+    {% if precommit %}
+    "pre-commit>=4.0.1",
+    {% endif -%}
+    {% if mypy %}
+    "mypy>=1.14.1",
+    {% endif -%}
+    {% if pylint %}
+    "pylint>=3.3.4",
+    {% endif %}
+    {% if codecov %}
+    "pytest-cov>=6.0.0",
+    {% endif %}
+    {% if mkdocs %}
+    "mkdocs>=1.6.1",
+    "mkdocs-material>=9.5.50",
+    "mkdocstrings[python]>=0.27.0",
+    {% endif %}
+    "ruff>=0.11.0",
+]
+
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+py-modules = ["{{ project_slug }}"]
+
+{% if mypy %}
+[tool.mypy]
+files = ["{{ project_slug }}"]
+check_untyped_defs = false
+warn_return_any = true
+warn_unused_ignores = true
+show_error_codes = true
+ignore_missing_imports = true
+{% endif %}
+
+{% if pytest %}
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+{% endif %}
+
+[tool.pylint]
+disable = ["missing-module-docstring",
+           "missing-function-docstring",
+           "missing-class-docstring",
+           "unused-import",
+           "line-too-long",]
+max-line-length = 110
+ignore-patterns = ["tests/*"]
+output-format = "colorized"
+
+[tool.ruff]
+line-length = 110
+fix = true
+
+[tool.ruff.lint]
+select = [
+    # FastAPI
+    "FAST",
+    # flake8-2020
+    "YTT",
+    # flake8-async
+    "ASYNC",
+    # flake8-bandit
+    "S",
+    # flake8-bugbear
+    "B",
+    # flake8-blind-except
+    "BLE",
+    # flake8-boolean-trap
+    "FBT",
+    # flake8-builtins
+    "A",
+    # flake8-comprehensions
+    "C4",
+    # flake8-commas
+    "COM",
+    # flake8-django
+    "DJ",
+    # flake8-debugger
+    "T10",
+    # flake8-simplify
+    "SIM",
+    # flake8-errmsg
+    "EM",
+    # flake8-logging
+    "LOG",
+    # flake8-pytest-style
+    "PT",
+    # flake8-raise
+    "RSE",
+    # flake8-return
+    "RET",
+    # flake8-self
+    "SLF",
+    # flake8-unused-arguments
+    "ARG",
+    # flake8-use-pathlib
+    "PTH",
+    # pep8-naming
+    "N",
+    # Pyflakes
+    "F",
+    # isort
+    "I",
+    # pydocstyle
+    "D",
+    # mccabe
+    "C90",
+    # pycodestyle
+    "E", "W",
+    # pygrep-hooks
+    "PGH",
+    # pyupgrade
+    "UP",
+    # ruff
+    "RUF",
+    # tryceratops
+    "TRY",
+    # refurb
+    "FURB",
+]
+preview = false
+fixable = ["ALL"]
+ignore = ["BLE001", "D104", "D100", "D417", "D415", "COM812"]
+unfixable = []
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101", "D"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.isort]
+split-on-trailing-comma = false
+
+[tool.ruff.format]
+# Enables includes an opt-in preview mode
+preview = false
+
+# Like Black, use double quotes for strings.
+quote-style = "double"
+
+# Like Black, indent with spaces, rather than tabs.
+indent-style = "space"
+
+# Like Black, respect magic trailing commas.
+skip-magic-trailing-comma = true
+
+# Like Black, automatically detect the appropriate line ending.
+line-ending = "auto"
+
+# Enable auto-formatting of code examples in docstrings.
+docstring-code-format = true
+
+# Set the line length limit used when formatting code snippets in docstrings.
+docstring-code-line-length = "dynamic"
+
+{% if codecov %}
+[tool.coverage.report]
+skip_empty = true
+
+[tool.coverage.run]
+branch = true
+source = ["{{project_slug}}"]
+{% endif %}

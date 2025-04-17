@@ -1,0 +1,48 @@
+stages:
+  - tests
+{% if mkdocs %}
+  - generating_docs
+{% endif %}
+
+# Workflow is used here to avoid triggering pipelines for merge requests
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: never
+    - if: $CI_PIPELINE_SOURCE != "merge_request_event"
+      when: always
+
+run_all_tests:
+  stage: tests
+  tags:
+    - docker
+  image: ghcr.io/astral-sh/uv:python{{ python_version}}-alpine
+  script:
+    - uv sync --frozen
+    - uv run ruff check
+    - uv run ruff format --check
+    {% if pylint %}
+    - uv run pylint {{ project_slug }}
+    {% endif %}
+    {% if mypy %}
+    - uv run mypy
+    {% endif %}
+    {% if pytest %}
+    - uv run python -m pytest {% if codecov %}--cov --cov-config=pyproject.toml{% endif %} tests
+    {% endif %}
+
+{% if mkdocs %}
+pages:
+  tags:
+    - docker
+  image: ghcr.io/astral-sh/uv:python{{ python_version }}-alpine
+  stage: generating_docs
+  script:
+    - uv sync --frozen
+    - uv run mkdocs build -d public
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+{% endif %}
