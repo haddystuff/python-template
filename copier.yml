@@ -42,11 +42,6 @@ python_version:
     python_version must be in the format 3.xx
     {% endif %}
 
-pylint:
-  type: bool
-  help: "Do you want to include pylint?"
-  default: False
-
 mypy:
   type: bool
   help: "Do you want to include mypy?"
