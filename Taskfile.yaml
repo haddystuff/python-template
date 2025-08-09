@@ -15,9 +15,9 @@ tasks:
     cmds:
       - echo "🚀 Checking lock file consistency with 'pyproject.toml'"
       - uv lock --locked
-      - echo "🚀 Code formatting: Running ruff format"
+      - echo "🚀 Formatting code with ruff"
       - uv run ruff format --check
-      - echo "🚀 Linting: Running ruff"
+      - echo "🚀 Linting code with ruff"
       - uv run ruff check
 
   test:
